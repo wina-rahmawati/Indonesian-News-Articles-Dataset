@@ -1,5 +1,9 @@
-CREATE
-OR REPLACE PROCEDURE public.sp_cdc_deleted_row_article() LANGUAGE plpgsql AS $ $ BEGIN -- create temporary table for copy result file transform
+CREATE OR REPLACE PROCEDURE public.sp_cdc_deleted_row_article() 
+LANGUAGE plpgsql 
+AS $$ 
+BEGIN 
+
+-- create temporary table for copy result file transform
 CREATE TEMP TABLE copy_from_s3 (
     id int,
     title varchar(200),
@@ -38,8 +42,10 @@ CREATE TEMP check_row_deleted as (
     SELECT
         a.id
     from
-        change_data_type a
-        inner join public.fact_article b on a.id = b.id
+        public.fact_article a
+        LEFT join change_data_type b on a.id = b.id
+    WHERE
+        b.id IS NULL
 );
 
 UPDATE
@@ -50,12 +56,7 @@ SET
 FROM
     check_row_deleted a
 WHERE
-    a.id not in (
-        select
-            id
-        from
-            public.fact_article.id
-    );
+    a.id = public.fact_article.id;
 
 -- the id article with eligible_deleted_row=1 will be deleted on public.fact_article and backup on public.fact_article_backup
 delete from
@@ -96,7 +97,9 @@ SELECT
     deleted_at,
     GETDATE() - INTERVAL '7 HOUR' AS process_created
 FROM
-    public.fact_article;
+    public.fact_article
+where
+    eligible_deleted_row = 1;
 
 DELETE FROM
     public.fact_article
@@ -147,11 +150,8 @@ FROM
 
 -- drop all the temporary table 
 DROP TABLE copy_from_s3;
-
 DROP TABLE check_row_deleted;
-
 DROP TABLE change_data_type;
 
 END;
-
-$ $
+$$
