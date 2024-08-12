@@ -17,7 +17,7 @@ from article_transform import main
 
 
 @dag(dag_id="article_job",
-     schedule_interval=timedelta(days=1),
+     schedule_interval=timedelta(hours=1),
      start_date=datetime(year=2024, month=8, day=11, hour=9, minute=00),
      tags=["fact_article"],
      max_active_runs=1,
@@ -41,7 +41,7 @@ def transform_article():
                     published_at,
                     updated_at,
                     author_id
-                FROM article_published WHERE updated_at >= CURRENT_TIMESTAMP - INTERVAL '7 DAY';"""})
+                FROM article_published WHERE updated_at >= CURRENT_TIMESTAMP - INTERVAL '3 HOUR';"""})
     
     transform_article_data = PythonOperator(
         task_id=f'transform_article_data',
