@@ -15,7 +15,10 @@ Steps:
 
 Bonus Question:
 1. The ETL/ELT that you made is new, and the data that is in the database is from 2016. What should you consider?
+
 `Answer:`: I should consider performing an initial data load and ensuring data quality by validating the data, handling duplicate values, and making sure the data is loaded without missing records.
+
 3. What if the table design is using a `hard delete` method. That means once the data is deleted, the row is also get deleted. So the data in
 the data warehouse and in the database should sync.
+
 `Answer:` Use Change Data Capture (CDC) to check for rows that will be deleted. I would not only apply hard deletes but also implement a backup process before any data is deleted.
